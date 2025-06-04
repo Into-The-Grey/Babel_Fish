@@ -1,0 +1,172 @@
+/* --- Import fonts via index.html <head>:
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+*/
+
+:root {
+  --font-main: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+  --font-title: 'Rajdhani', 'Inter', 'Segoe UI', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
+
+  color-scheme: dark;
+  color: #e5e8ed;
+  background-color: #16171b;
+
+  font-size: 17px;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Responsive font size for ultrawide, 4k etc */
+@media (min-width: 1600px) {
+  :root {
+    font-size: 18px;
+  }
+}
+
+@media (min-width: 2100px) {
+  :root {
+    font-size: 19px;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-main);
+  background: #16171b;
+  color: #e5e8ed;
+  min-width: 320px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  /* Always allow background particles to show */
+  overflow-x: hidden;
+}
+
+a {
+  font-weight: 500;
+  color: #5ad0fa;
+  text-decoration: none;
+  transition: color 0.18s;
+}
+
+a:hover {
+  color: #00e3ff;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: var(--font-title);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #f1fbff;
+  margin: 0 0 0.5em 0;
+}
+
+h1 {
+  font-size: 2.6rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+code,
+pre,
+.monospace {
+  font-family: var(--font-mono);
+  background: #23243a;
+  color: #aaf6ff;
+  font-size: 1.01em;
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+button,
+.MuiButton-root {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.4em;
+  font-size: 1em;
+  font-weight: 600;
+  font-family: var(--font-title);
+  background: linear-gradient(90deg, #0b2743 60%, #011e34 100%);
+  color: #00eaff;
+  cursor: pointer;
+  box-shadow: 0 1.5px 8px #002e4755;
+  transition: border-color 0.18s, color 0.18s, background 0.22s;
+}
+
+button:hover,
+.MuiButton-root:hover {
+  border-color: #00eaff;
+  background: #03344a;
+  color: #40f6ff;
+}
+
+input,
+textarea,
+.MuiInputBase-input {
+  font-family: var(--font-main);
+  font-size: 1em;
+  color: #e7f7fa;
+  background: #23243a;
+  border-radius: 6px;
+}
+
+.MuiTable-root {
+  font-family: var(--font-main);
+}
+
+.MuiTableCell-head {
+  font-family: var(--font-title);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: #20223a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #39476a;
+  border-radius: 8px;
+}
+
+/* Support light mode (if you ever want it) */
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    color: #213547;
+    background-color: #f6f9ff;
+  }
+
+  body {
+    background: #eaf1fc;
+    color: #222;
+  }
+
+  a {
+    color: #646cff;
+  }
+
+  a:hover {
+    color: #3434ff;
+  }
+
+  code,
+  pre,
+  .monospace {
+    background: #f4f6fa;
+    color: #253044;
+  }
+}
