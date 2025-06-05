@@ -1,13 +1,15 @@
 import { Box, Typography } from "@mui/material";
+
 export default function AnalyticsTab() {
     return (
-        <Box>
-            <Typography variant="h5" sx={{color: "#70e6ff"}}>
-                Analytics
+        <Box sx={{textAlign: "center", p: 5}}>
+            <Typography variant="h4" sx={{fontFamily: "var(--font-title)", mb: 2}}>
+                📊 Analytics
             </Typography>
-            <Typography color="textSecondary">
-                This is a placeholder for future analytics/stats/charts. Connect your data and charting library here
-                later.
+            <Typography sx={{color: "#bafff5", fontFamily: "var(--font-main)"}}>
+                Get stats, charts, and insights on your usage and resources.
+                <br />
+                <b>Coming soon:</b> Usage graphs, payload breakdowns, trend tracking.
             </Typography>
         </Box>
     );
