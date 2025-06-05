@@ -16,7 +16,7 @@ jobs:
         include:
           - name: ESLint
             run: |
-              npx eslint frontend/src/**/*.ts* --format json -o eslint-report.json || true
+              npx eslint --config frontend/eslint.config.cjs frontend/src/**/*.ts* --format json -o eslint-report.json || true
             format: npx prettier --write frontend/src
             report: eslint-report.json
             trend: eslint-trend.md
@@ -54,11 +54,7 @@ jobs:
         id: get_commits
         run: |
           COMMITS=$(git log --since="midnight" --pretty=format:"%H" -- $TARGET_DIRS)
-          if [ -n "$COMMITS" ]; then
-              echo "COMMITS=${COMMITS//$'\n'/,}" >> $GITHUB_ENV
-          else
-              echo "COMMITS=" >> $GITHUB_ENV
-          fi
+          echo "COMMITS=$COMMITS" >> $GITHUB_ENV
 
       - name: Lint with ${{ matrix.name }}
         if: env.COMMITS != ''
@@ -76,17 +72,31 @@ jobs:
         if: env.COMMITS != ''
         run: ${{ matrix.format }}
 
-      - name: Create auto-fix PR if code was reformatted
+      - name: Create and checkout format branch
+        if: env.COMMITS != ''
+        run: |
+          git checkout -b auto/format-${{ matrix.name }}-${{ github.run_id }}
+
+      - name: Commit formatted code
         if: env.COMMITS != ''
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore(${{ matrix.name }}): auto-format code via GitHub Actions"
-          branch: "auto/format-${{ matrix.name }}-${{ github.run_id }}"
-          create_pull_request: true
+          branch: auto/format-${{ matrix.name }}-${{ github.run_id }}
           push_options: '--force'
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
           skip_dirty_check: false
+
+      - name: Create Pull Request for auto-format
+        if: env.COMMITS != ''
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(${{ matrix.name }}): auto-format code via GitHub Actions"
+          branch: auto/format-${{ matrix.name }}-${{ github.run_id }}
+          title: "Auto-format code via ${{ matrix.name }}"
+          body: "This PR was created automatically by GitHub Actions to format code using ${{ matrix.name }}."
+          base: main
 
       # 2. Historical Trend Reporting as Artifacts and Commit to Separate Branch/Dir/Date
       - name: Generate dated lint trend report
