@@ -54,7 +54,11 @@ jobs:
         id: get_commits
         run: |
           COMMITS=$(git log --since="midnight" --pretty=format:"%H" -- $TARGET_DIRS)
-          echo "COMMITS=$COMMITS" >> $GITHUB_ENV
+          if [ -n "$COMMITS" ]; then
+              echo "COMMITS=${COMMITS//$'\n'/,}" >> $GITHUB_ENV
+          else
+              echo "COMMITS=" >> $GITHUB_ENV
+          fi
 
       - name: Lint with ${{ matrix.name }}
         if: env.COMMITS != ''
