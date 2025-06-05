@@ -1,3 +1,4 @@
+// components/media/MediaTab.tsx
 import { Box, Typography } from "@mui/material";
 
 export default function MediaTab() {
