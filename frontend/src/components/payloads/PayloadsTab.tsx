@@ -1,6 +1,6 @@
 // src/components/payloads/PayloadsTab.tsx
 
-import {useState, useCallback, useEffect} from "react";
+import SearchIcon from "@mui/icons-material/Search";
 import {
     Box,
     Button,
@@ -18,11 +18,11 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import {useNavigate} from "react-router-dom";
-import {fetchPayloads} from "../../api/payloads"; // ← adjust if needed!
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { fetchPayloads } from "../../api/payloads";
 
-// You can move this to a types folder if reused elsewhere
+// Optionally import from a shared types folder
 export interface Payload {
     id: number;
     title: string;
@@ -248,6 +248,11 @@ export default function PayloadsTab() {
                                         >
                                             View
                                         </Button>
+                                        {/* 
+                                          // In the future: Add edit/delete/restore here!
+                                          // <Button ...>Edit</Button>
+                                          // <Button ...>Delete</Button>
+                                        */}
                                     </TableCell>
                                 </TableRow>
                             ))}

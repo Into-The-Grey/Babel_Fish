@@ -1,7 +1,7 @@
 // components/logs/LogsTab.tsx
 
 import { Box, Button, CircularProgress, Paper, Stack, TextField, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function LogsTab() {
     const [logs, setLogs] = useState<string[]>([]);
@@ -16,12 +16,24 @@ export default function LogsTab() {
             `[${new Date().toISOString()}] User admin logged in`,
             `[${new Date().toISOString()}] New payload submitted`,
         ];
+        // Simulate API latency
         setTimeout(() => {
             setLogs(data);
             setLogsLoading(false);
         }, 400);
     };
 
+    // Debounce search (so when you do have an API, it's ready)
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    useEffect(() => {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(fetchLogs, 200);
+        return () => {
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+        };
+    }, [logSearch]); // only triggers fetch when search changes
+
+    // Initial fetch
     useEffect(() => {
         fetchLogs();
     }, []);
