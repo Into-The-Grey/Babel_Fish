@@ -194,6 +194,6 @@ jobs:
             }
 
       # Reminder to check CodeQL externally (as per your setup)
-      - name: Reference: CodeQL Security Scan
+      - name: Reference:CodeQL Security Scan
         run: |
           echo "CodeQL is set up as a separate workflow. Please review security alerts in the Security tab for the latest findings."
