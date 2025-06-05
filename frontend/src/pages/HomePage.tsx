@@ -28,14 +28,11 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchPayloads } from "../api/payloads";
-import DocsTab from "../components/docs/DocsTab";
 import MainTabs, { type MainTab } from "../components/MainTabs";
-import MediaTab from "../components/MediaTab";
 import NavBar from "../components/NavBar";
 import ParticlesBackground from "../components/ParticlesBackground";
 // import SettingsTab from "../components/settings/SettingsTab";
 import LOGO_URL from "../assets/images/babel_fish_logo192.png";
-import AnalyticsTab from "../components/AnalyticsTab";
 
 const APP_NAME = "Babel Fish";
 
@@ -455,13 +452,91 @@ export default function HomePage() {
                     </Box>
                 )}
 
-                {/* Add these for other tabs */}
-                {tab === "docs" && <DocsTab />}
-                {tab === "media" && <MediaTab />}
-                {/* {tab === "settings" && <SettingsTab />} */}
-                {tab === "analytics" && <AnalyticsTab />}
+                {/* DOCS TAB */}
+                {tab === "docs" && (
+                    <Box sx={{textAlign: "center", p: 5}}>
+                        <Typography variant="h4" sx={{fontFamily: "var(--font-title)", mb: 2}}>
+                            📚 Docs Library
+                        </Typography>
+                        <Typography sx={{color: "#7af9ff", fontFamily: "var(--font-main)"}}>
+                            Store, search, and view your PDFs, manuals, cheatsheets, and guides.
+                            <br />
+                            <b>Coming soon:</b> Advanced search, text-to-speech, and more file types.
+                        </Typography>
+                    </Box>
+                )}
 
-                {/* Add similar blocks for other tabs as needed */}
+                {/* MEDIA TAB */}
+                {tab === "media" && (
+                    <Box sx={{textAlign: "center", p: 5}}>
+                        <Typography variant="h4" sx={{fontFamily: "var(--font-title)", mb: 2}}>
+                            📸 Media Library
+                        </Typography>
+                        <Typography sx={{color: "#8de3ff", fontFamily: "var(--font-main)"}}>
+                            Upload, view, and organize your images, audio, and videos.
+                            <br />
+                            <b>Coming soon:</b> Smart previews, metadata, and more.
+                        </Typography>
+                    </Box>
+                )}
+
+                {/* ANALYTICS TAB */}
+                {tab === "analytics" && (
+                    <Box sx={{textAlign: "center", p: 5}}>
+                        <Typography variant="h4" sx={{fontFamily: "var(--font-title)", mb: 2}}>
+                            📊 Analytics
+                        </Typography>
+                        <Typography sx={{color: "#bafff5", fontFamily: "var(--font-main)"}}>
+                            Get stats, charts, and insights on your usage and resources.
+                            <br />
+                            <b>Coming soon:</b> Usage graphs, payload breakdowns, trend tracking.
+                        </Typography>
+                    </Box>
+                )}
+
+                {/* TRASH/RECOVERY TAB */}
+                {tab === "trash" && (
+                    <Box sx={{textAlign: "center", p: 5}}>
+                        <Typography variant="h4" sx={{fontFamily: "var(--font-title)", mb: 2}}>
+                            🗑️ Trash & Recovery
+                        </Typography>
+                        <Typography sx={{color: "#ffadad", fontFamily: "var(--font-main)"}}>
+                            Deleted items go here for recovery or permanent deletion.
+                            <br />
+                            <b>Coming soon:</b> Restore files, manage retention, auto-cleanup.
+                        </Typography>
+                    </Box>
+                )}
+
+                {/* AI TAB */}
+                {tab === "ai" && (
+                    <Box sx={{textAlign: "center", p: 5}}>
+                        <Typography variant="h4" sx={{fontFamily: "var(--font-title)", mb: 2}}>
+                            🤖 AI Hub
+                        </Typography>
+                        <Typography sx={{color: "#e0c8ff", fontFamily: "var(--font-main)"}}>
+                            Run LLMs, chat, and Q&A on your docs. Private, local, powerful.
+                            <br />
+                            <b>Coming soon:</b> Prompting, embeddings, doc search, more.
+                        </Typography>
+                    </Box>
+                )}
+
+                {/* BACKUP TAB */}
+                {tab === "backup" && (
+                    <Box sx={{textAlign: "center", p: 5}}>
+                        <Typography variant="h4" sx={{fontFamily: "var(--font-title)", mb: 2}}>
+                            💾 Backup & Snapshots
+                        </Typography>
+                        <Typography sx={{color: "#cbeafe", fontFamily: "var(--font-main)"}}>
+                            Create, manage, and restore full app backups and snapshots.
+                            <br />
+                            <b>Coming soon:</b> One-click backup/restore, download/export, scheduled jobs.
+                        </Typography>
+                    </Box>
+                )}
+
+                {/* {tab === "settings" && <SettingsTab />} */}
             </Box>
         </Box>
     );
