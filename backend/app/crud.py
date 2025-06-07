@@ -57,3 +57,38 @@ async def create_payload(session: AsyncSession, payload: PayloadCreate):
     await session.commit()
     await session.refresh(db_payload)
     return db_payload
+
+
+import os
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from .db import DocTable
+from fastapi import HTTPException
+
+async def create_doc(session: AsyncSession, filename: str, filepath: str):
+    db_doc = DocTable(filename=filename, filepath=filepath)
+    session.add(db_doc)
+    await session.commit()
+    await session.refresh(db_doc)
+    return db_doc
+
+async def list_docs(session: AsyncSession, search: str | None = None):
+    stmt = select(DocTable)
+    if search:
+        stmt = stmt.where(DocTable.filename.ilike(f"%{search}%"))
+    stmt = stmt.order_by(DocTable.uploaded_at.desc())
+    result = await session.execute(stmt)
+    return result.scalars().all()
+
+async def get_doc(session: AsyncSession, doc_id: int):
+    result = await session.execute(select(DocTable).where(DocTable.id == doc_id))
+    return result.scalar_one_or_none()
+
+async def delete_doc(session: AsyncSession, doc_id: int):
+    doc = await get_doc(session, doc_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Doc not found")
+    os.remove(str(doc.filepath))  # Remove file from disk
+    await session.delete(doc)
+    await session.commit()
+    return {"detail": "Doc deleted"}

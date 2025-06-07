@@ -20,3 +20,23 @@ class Payload(PayloadBase):
 
     class Config:
         orm_mode = True
+
+from pydantic import BaseModel
+from datetime import datetime
+
+
+class DocBase(BaseModel):
+    filename: str
+
+
+class Doc(DocBase):
+    id: int
+    url: str
+    uploaded_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class DocList(BaseModel):
+    docs: list[Doc]

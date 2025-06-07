@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from . import crud, models, db
 from fastapi.responses import PlainTextResponse, JSONResponse
-from .main import get_current_username  # Import the auth dependency
+from main import get_current_username  # Import the auth dependency
 
 router = APIRouter()
 

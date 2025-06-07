@@ -33,3 +33,14 @@ AsyncSessionLocal = async_sessionmaker(
 async def get_db():
     async with AsyncSessionLocal() as session:
         yield session
+
+
+from sqlalchemy import Column, Integer, String, TIMESTAMP, text
+from datetime import datetime
+
+class DocTable(Base):
+    __tablename__ = "docs"
+    id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String(255), nullable=False)
+    filepath = Column(String(512), nullable=False)
+    uploaded_at = Column(TIMESTAMP(timezone=True), server_default=text("NOW()"))
