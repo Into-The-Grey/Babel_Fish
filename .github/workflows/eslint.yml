@@ -1,0 +1,144 @@
+name: Daily ESLint Code Scan
+
+on:
+  schedule:
+    - cron: '59 23 * * *'
+  workflow_dispatch:
+
+jobs:
+  eslint-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Get today's commits in frontend/src
+        id: get_commits
+        run: |
+          COMMITS=$(git log --since="midnight" --pretty=format:"%H" -- frontend/src)
+          echo "COMMITS=$COMMITS" >> $GITHUB_ENV
+
+      - name: Lint with ESLint
+        if: env.COMMITS != ''
+        run: npx eslint --config frontend/eslint.config.cjs frontend/src/**/*.ts* --format json -o eslint-report.json || true
+
+      - name: Upload ESLint report as artifact
+        if: env.COMMITS != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ESLint-report
+          path: eslint-report.json
+
+      - name: Run Prettier formatter
+        if: env.COMMITS != ''
+        run: npx prettier --write frontend/src
+
+      - name: Create and checkout format branch
+        if: env.COMMITS != ''
+        run: git checkout -b auto/format-eslint-${{ github.run_id }}
+
+      - name: Commit formatted code
+        if: env.COMMITS != ''
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(eslint): auto-format code via GitHub Actions"
+          branch: auto/format-eslint-${{ github.run_id }}
+          push_options: '--force'
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create Pull Request for auto-format
+        if: env.COMMITS != ''
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(eslint): auto-format code via GitHub Actions"
+          branch: auto/format-eslint-${{ github.run_id }}
+          title: "Auto-format code via ESLint"
+          body: "This PR was created automatically by GitHub Actions to format code using ESLint."
+          base: main
+
+      - name: Generate dated lint trend report
+        if: env.COMMITS != ''
+        run: |
+          today=$(date +'%d-%m-%Y')
+          dir="TS-trend"
+          mkdir -p "$dir"
+          trend_file="$dir/$today.md"
+          echo "| Date | Error Count |" > "$trend_file"
+          echo "|------|-------------|" >> "$trend_file"
+          if [ -f eslint-report.json ]; then
+            ERRORS=$(jq '[.[] | .messages | length] | add' eslint-report.json)
+            echo "| $today | $ERRORS |" >> "$trend_file"
+          fi
+          echo "trend_file=$trend_file" >> $GITHUB_ENV
+
+      - name: Upload ESLint trend report as artifact
+        if: env.COMMITS != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ESLint-trend-${{ env.trend_file }}
+          path: ${{ env.trend_file }}
+
+      - name: Commit trend report to trend-reports branch
+        if: env.COMMITS != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git ls-remote --exit-code --heads origin trend-reports ; then
+            git checkout -b trend-reports
+            git push origin trend-reports
+          else
+            git fetch origin trend-reports:trend-reports
+            git checkout trend-reports
+          fi
+          cp "${{ env.trend_file }}" .
+          git add "${{ env.trend_file }}"
+          git commit -m "chore(trend-report): add ESLint lint error trend for ${{ env.trend_file }} [automated]" || echo "No changes to commit"
+          git push origin trend-reports
+
+      - name: Create issues for ESLint findings
+        if: env.COMMITS != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const { repo, owner } = context.repo;
+            const commitSha = process.env.GITHUB_SHA;
+            const today = new Date().toISOString().split('T')[0];
+
+            async function issueExists(title) {
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner,
+                repo,
+                state: 'open',
+                labels: 'bug,automated-scan'
+              });
+              return issues.some(issue => issue.title === title);
+            }
+
+            if (fs.existsSync('eslint-report.json')) {
+              const report = JSON.parse(fs.readFileSync('eslint-report.json'));
+              for (const file of report) {
+                for (const message of file.messages) {
+                  const title = `ESLint: ${message.ruleId} in ${file.filePath} [${today}]`;
+                  if (!(await issueExists(title))) {
+                    await github.rest.issues.create({
+                      owner,
+                      repo,
+                      title,
+                      body: `**Rule:** ${message.ruleId}\n**File:** ${file.filePath}\n**Line:** ${message.line}\n**Message:** ${message.message}\n**Commit:** ${commitSha}\n**Date:** ${today}`,
+                      labels: ['bug', 'automated-scan']
+                    });
+                  }
+                }
+              }
+            }
