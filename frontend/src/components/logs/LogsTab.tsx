@@ -1,46 +1,84 @@
 // components/logs/LogsTab.tsx
 
-import { Box, Button, CircularProgress, Paper, Stack, TextField, Typography } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import DownloadIcon from "@mui/icons-material/Download";
+import {
+    Box,
+    Button,
+    CircularProgress,
+    Paper,
+    Stack,
+    TextField,
+    ToggleButton,
+    ToggleButtonGroup,
+    Typography
+} from "@mui/material";
+import { useEffect, useState } from "react";
+
+type LogSeverity = "all" | "error" | "warning" | "info";
+
+interface LogEntry {
+    text: string;
+    severity: LogSeverity;
+    timestamp: string; // ISO
+}
+
+const demoLogs: LogEntry[] = [
+    {text: "WebApp started", severity: "info", timestamp: new Date().toISOString()},
+    {text: "User admin logged in", severity: "info", timestamp: new Date().toISOString()},
+    {text: "New payload submitted", severity: "info", timestamp: new Date().toISOString()},
+    {text: "Disk space low", severity: "warning", timestamp: new Date().toISOString()},
+    {text: "Database connection failed", severity: "error", timestamp: new Date().toISOString()},
+];
 
 export default function LogsTab() {
-    const [logs, setLogs] = useState<string[]>([]);
+    const [logs, setLogs] = useState<LogEntry[]>([]);
     const [logsLoading, setLogsLoading] = useState(false);
     const [logSearch, setLogSearch] = useState("");
+    const [severity, setSeverity] = useState<LogSeverity>("all");
+    const [timestampFormat, setTimestampFormat] = useState<"iso" | "local">("local");
 
-    // Dummy log fetch (replace with real API call later)
-    const fetchLogs = async () => {
+    useEffect(() => {
         setLogsLoading(true);
-        const data = [
-            `[${new Date().toISOString()}] WebApp started`,
-            `[${new Date().toISOString()}] User admin logged in`,
-            `[${new Date().toISOString()}] New payload submitted`,
-        ];
-        // Simulate API latency
+        // Replace with backend call later
         setTimeout(() => {
-            setLogs(data);
+            setLogs(demoLogs);
             setLogsLoading(false);
-        }, 400);
+        }, 350);
+    }, []);
+
+    // Filtering logic
+    const filteredLogs = logs
+    .filter((log) => severity === "all" || log.severity === severity)
+    .filter((log) => log.text.toLowerCase().includes(logSearch.toLowerCase()));
+
+    // Copy/export logic
+    const logsToExport = filteredLogs
+    .map(
+        (log) =>
+            `[${
+                timestampFormat === "iso" ? log.timestamp : new Date(log.timestamp).toLocaleString()
+            }] [${log.severity.toUpperCase()}] ${log.text}`
+    )
+    .join("\n");
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(logsToExport);
     };
 
-    // Debounce search (so when you do have an API, it's ready)
-    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    useEffect(() => {
-        if (debounceRef.current) clearTimeout(debounceRef.current);
-        debounceRef.current = setTimeout(fetchLogs, 200);
-        return () => {
-            if (debounceRef.current) clearTimeout(debounceRef.current);
-        };
-    }, [logSearch]); // only triggers fetch when search changes
-
-    // Initial fetch
-    useEffect(() => {
-        fetchLogs();
-    }, []);
+    const handleExport = () => {
+        const blob = new Blob([logsToExport], {type: "text/plain"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "babel_fish_logs.txt";
+        a.click();
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <Box>
-            <Stack direction="row" spacing={2} mb={2}>
+            <Stack direction={{xs: "column", md: "row"}} spacing={2} mb={2} alignItems="center">
                 <TextField
                     label="Search Logs"
                     value={logSearch}
@@ -51,17 +89,33 @@ export default function LogsTab() {
                         input: {color: "#e4edff", fontWeight: 500},
                     }}
                 />
-                <Button
-                    variant="outlined"
-                    onClick={fetchLogs}
-                    sx={{
-                        fontFamily: "var(--font-title)",
-                        fontWeight: 600,
-                        color: "#85f3ff",
-                        borderColor: "#85f3ff",
-                    }}
+                <ToggleButtonGroup
+                    value={severity}
+                    exclusive
+                    onChange={(_, val) => val && setSeverity(val)}
+                    size="small"
+                    sx={{mx: 2}}
                 >
-                    Refresh
+                    <ToggleButton value="all">All</ToggleButton>
+                    <ToggleButton value="info">Info</ToggleButton>
+                    <ToggleButton value="warning">Warning</ToggleButton>
+                    <ToggleButton value="error">Error</ToggleButton>
+                </ToggleButtonGroup>
+                <ToggleButtonGroup
+                    value={timestampFormat}
+                    exclusive
+                    onChange={(_, val) => val && setTimestampFormat(val)}
+                    size="small"
+                    sx={{mx: 2}}
+                >
+                    <ToggleButton value="local">Local</ToggleButton>
+                    <ToggleButton value="iso">ISO</ToggleButton>
+                </ToggleButtonGroup>
+                <Button startIcon={<ContentCopyIcon />} variant="outlined" onClick={handleCopy}>
+                    Copy
+                </Button>
+                <Button startIcon={<DownloadIcon />} variant="outlined" onClick={handleExport}>
+                    Export
                 </Button>
             </Stack>
             {logsLoading ? (
@@ -81,22 +135,30 @@ export default function LogsTab() {
                         boxShadow: "0 1.5px 8px #000b",
                     }}
                 >
-                    {logs.length === 0 ? (
+                    {filteredLogs.length === 0 ? (
                         <Typography color="textSecondary">No logs found.</Typography>
                     ) : (
                         <Box>
-                            {logs
-                            .filter((log) => (logSearch ? log.toLowerCase().includes(logSearch.toLowerCase()) : true))
-                            .map((log, i) => (
+                            {filteredLogs.map((log, i) => (
                                 <Typography
                                     key={i}
                                     sx={{
                                         fontFamily: "var(--font-mono)",
-                                        color: log.includes("error") ? "#ffadad" : "#bafff5",
+                                        color:
+                                            log.severity === "error"
+                                                ? "#ffadad"
+                                                : log.severity === "warning"
+                                                ? "#ffe29a"
+                                                : "#bafff5",
                                         fontSize: 15.5,
+                                        whiteSpace: "pre-line",
                                     }}
                                 >
-                                    {log}
+                                    [
+                                    {timestampFormat === "iso"
+                                        ? log.timestamp
+                                        : new Date(log.timestamp).toLocaleString()}
+                                    ] [{log.severity.toUpperCase()}] {log.text}
                                 </Typography>
                             ))}
                         </Box>
