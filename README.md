@@ -16,6 +16,8 @@
 
 ## 🚀 What is Babel Fish?
 
+**For Backend or Frontend related information please check, [Backend](./Docs/Sever(Backend)/README.md) or [Frontend](./Docs/Webapp(Frontend)/README.md)**
+
 **Babel Fish** is your always-on, LAN-ready, fully extensible knowledge platform for technical resources.  
 It’s what happens when you cross a private wiki, a payload dropbox, an automation hub, a searchable PDF/media library, and a REST API—all running quietly on a Raspberry Pi (or anything else), safe from the chaos of the cloud.
 
