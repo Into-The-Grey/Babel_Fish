@@ -1,6 +1,35 @@
-# Project: Babel Fish
+# 🐟 Babel Fish Backend
 
-## Babel Fish Backend Documentation
+## Universal Knowledge Platform · LAN-first · Modular & Extensible
+
+**Babel Fish** is your hacker homebase: payload manager, docs library, personal cloud, and automation hub—running on your hardware, under your control.
+
+---
+
+## Table of Contents
+
+- [🐟 Babel Fish Backend](#-babel-fish-backend)
+  - [Universal Knowledge Platform · LAN-first · Modular \& Extensible](#universal-knowledge-platform--lan-first--modular--extensible)
+  - [Table of Contents](#table-of-contents)
+  - [API Overview](#api-overview)
+  - [Authentication](#authentication)
+  - [Resource Modules](#resource-modules)
+    - [1. Payloads](#1-payloads)
+      - [**Model(Payloads):**](#modelpayloads)
+      - [**Endpoints(Payloads):**](#endpointspayloads)
+        - [**Search \& Filter Parameters:**](#search--filter-parameters)
+        - [**Example(Payloads):**](#examplepayloads)
+    - [2. Docs](#2-docs)
+      - [**Model:**](#model)
+      - [**Endpoints:**](#endpoints)
+        - [**Search Parameters:**](#search-parameters)
+        - [**Upload:**](#upload)
+        - [**Example:**](#example)
+  - [Error Handling](#error-handling)
+  - [File Storage](#file-storage)
+  - [Future Modules (stubbed or coming soon)](#future-modules-stubbed-or-coming-soon)
+  - [Developer Notes](#developer-notes)
+  - [Roadmap](#roadmap)
 
 Welcome to the Babel Fish backend API documentation.  
 This backend powers all resource management, search, and persistence for your modular LAN-first knowledge platform.
