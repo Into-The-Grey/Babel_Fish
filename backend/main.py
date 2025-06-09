@@ -6,6 +6,7 @@ import secrets
 
 from app.payloads import router as payloads_router
 from app.docs import router as docs_router
+from app.media import router as media_router
 
 app = FastAPI()
 security = HTTPBasic()
@@ -33,4 +34,5 @@ def protected_route(username: str = Depends(get_current_username)):
 # Include all resource routers, always under /api
 app.include_router(payloads_router, prefix="/api")
 app.include_router(docs_router, prefix="/api")
+app.include_router(media_router, prefix="/api")
 # (future: media_router, logs_router, etc.)
