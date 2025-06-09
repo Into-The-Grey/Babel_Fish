@@ -5,3 +5,4 @@
 backend/alembic/env.py
 backend/.env
 backend/alembic.ini
+.env
