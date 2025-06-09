@@ -40,3 +40,32 @@ class Doc(DocBase):
 
 class DocList(BaseModel):
     docs: list[Doc]
+
+
+
+from pydantic import BaseModel
+from typing import List, Optional
+from datetime import datetime
+
+
+class MediaBase(BaseModel):
+    filename: str
+    media_type: str
+    tags: Optional[List[str]] = []
+    author: Optional[str] = None
+    description: Optional[str] = None
+
+
+class MediaCreate(MediaBase):
+    pass
+
+
+class Media(MediaBase):
+    id: int
+    size: int
+    storage_type: str
+    uploaded_at: datetime
+    url: str
+
+    class Config:
+        orm_mode = True
