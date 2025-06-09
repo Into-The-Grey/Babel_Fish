@@ -2,10 +2,13 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String, Text, ARRAY, TIMESTAMP, text, Boolean
 from sqlalchemy.orm import declarative_base
+import os
+from dotenv import load_dotenv
 
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL is None:
+    raise ValueError("DATABASE_URL environment variable is not set")
 Base = declarative_base()
-
-DATABASE_URL = "postgresql+asyncpg://ncacord:zelda@localhost/babel_fish"
 
 
 class PayloadTable(Base):
@@ -37,6 +40,7 @@ async def get_db():
 
 from sqlalchemy import Column, Integer, String, TIMESTAMP, text
 from datetime import datetime
+from backend.app.db import DATABASE_URL
 
 class DocTable(Base):
     __tablename__ = "docs"
