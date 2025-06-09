@@ -92,3 +92,75 @@ async def delete_doc(session: AsyncSession, doc_id: int):
     await session.delete(doc)
     await session.commit()
     return {"detail": "Doc deleted"}
+
+
+import os
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, or_
+from .db import MediaTable
+from fastapi import HTTPException
+
+MEDIA_CUTOFF = 100 * 1024 * 1024  # 100MB
+
+
+async def create_media(
+    session: AsyncSession,
+    filename,
+    media_type,
+    data,
+    size,
+    tags=None,
+    author=None,
+    description=None,
+    storage_type="db",
+    file_path=None,
+):
+    db_media = MediaTable(
+        filename=filename,
+        media_type=media_type,
+        storage_type=storage_type,
+        size=size,
+        tags=tags or [],
+        author=author,
+        description=description,
+        data=data if storage_type == "db" else None,
+        file_path=file_path if storage_type == "file" else None,
+    )
+    session.add(db_media)
+    await session.commit()
+    await session.refresh(db_media)
+    return db_media
+
+
+from typing import Optional, List
+
+async def list_media(
+    session: AsyncSession, search: Optional[str] = None, tags: Optional[List[str]] = None, media_type: Optional[str] = None
+):
+    stmt = select(MediaTable).where(
+        MediaTable.deleted == False
+    ) # pylint: disable=singleton-comparison
+
+    if search:
+        stmt = stmt.where(MediaTable.filename.ilike(f"%{search}%"))
+    if tags:
+        stmt = stmt.where(MediaTable.tags.overlap(tags))
+    if media_type:
+        stmt = stmt.where(MediaTable.media_type == media_type)
+    stmt = stmt.order_by(MediaTable.uploaded_at.desc())
+    result = await session.execute(stmt)
+    return result.scalars().all()
+
+
+async def get_media(session: AsyncSession, media_id: int):
+    result = await session.execute(select(MediaTable).where(MediaTable.id == media_id))
+    return result.scalar_one_or_none()
+
+
+async def soft_delete_media(session: AsyncSession, media_id: int):
+    media = await get_media(session, media_id)
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+    setattr(media, "deleted", True)
+    await session.commit()
+    return {"detail": "Media marked as deleted"}
