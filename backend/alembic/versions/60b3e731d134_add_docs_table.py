@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 """Add docs table
 
 Revision ID: 60b3e731d134

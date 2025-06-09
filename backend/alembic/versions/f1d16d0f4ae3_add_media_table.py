@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 """Add media table
 
 Revision ID: f1d16d0f4ae3
